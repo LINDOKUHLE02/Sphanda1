@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submitted Quotes - Sphanda Transport</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
+    }
+
+    h2 {
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .container {
+      padding: 2rem;
+      max-width: 1200px;
+      margin: auto;
+      background: white;
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    #searchInput {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    #errorMessage {
+      color: red;
+      display: none;
+      text-align: center;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h2>Submitted Requests</h2>
+  <div class="container">
+    <input type="text" id="searchInput" placeholder="Search by name..." onkeyup="searchSubmissions()">
+    <div id="errorMessage">No submissions found or error fetching data.</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Message</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody id="submissionsTable"></tbody>
+    </table>
+  </div>
+
+  <script>
+    // Fetch the submission data from the server
+    fetch('/submissions')
+      .then(res => res.json())
+      .then(data => {
+        const table = document.getElementById('submissionsTable');
+        const errorMessage = document.getElementById('errorMessage');
+
+        if (data.length === 0) {
+          errorMessage.style.display = 'block';
+        } else {
+          errorMessage.style.display = 'none';
+          table.innerHTML = data.map(sub => `
+            <tr>
+              <td>${sub.name}</td>
+              <td>${sub.email}</td>
+              <td>${sub.phone}</td>
+              <td>${sub.message}</td>
+              <td>${new Date(sub.date).toLocaleString()}</td>
+            </tr>`).join('');
+        }
+      })
+      .catch(err => {
+        document.getElementById('errorMessage').style.display = 'block';
+      });
+
+    // Function to filter submissions based on search input
+    function searchSubmissions() {
+      const searchValue = document.getElementById('searchInput').value.toLowerCase();
+      const rows = document.querySelectorAll('#submissionsTable tr');
+      
+      rows.forEach(row => {
+        const name = row.cells[0].textContent.toLowerCase();
+        row.style.display = name.includes(searchValue) ? '' : 'none';
+      });
+    }
+  </script>
+</body>
+</html>
